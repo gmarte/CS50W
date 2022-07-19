@@ -1,10 +1,14 @@
 {% extends "encyclopedia/layout.html" %} 
-{% block title %} Encyclopedia : {{ title }} {% endblock %} 
-{% block body %}
-<h1>{{ title }}</h1>
 
-<p>
-    {{ entry }}
-</p>
+{% load entry_extras %}
+{% block title %} {{ title }} {% endblock %} 
+{% block body %}
+{% if entry %}
+    <p>
+        {{ entry|convert_markdown|safe }}
+    </p>
+{% else %}
+    <p> page was not found</p>
+{% endif %}
 
 {% endblock %}
