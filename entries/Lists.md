@@ -1,11 +1,11 @@
 ## Lists
 
-Unordered
+- Item 1
+  - Sub-item 1
+  - Sub-item 2
+- Item 2
+  - Sub-item 1
 
-+ Create a list by starting a line with `+`, `-`, or `*`
-+ Sub-lists are made by indenting 2 spaces:
-  - Marker character change forces new list start:
-    * Ac tristique libero volutpat at
-    + Facilisis in pretium nisl aliquet
-    - Nulla volutpat aliquam velit
-+ Very easy!
+- Item 1
+- Item 2
+- Item 3

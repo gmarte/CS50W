@@ -7,6 +7,9 @@
     <p>
         {{ entry|convert_markdown|safe }}
     </p>
+    <div class="form-group">        
+       <a href="{% url 'add' title %}" type="submit" value="Edit" class="btn btn-primary">Edit</a>
+    </div>
 {% else %}
     <p> page was not found</p>
 {% endif %}
