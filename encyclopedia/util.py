@@ -41,12 +41,6 @@ def search_entry(query):
                 for filename in filenames if (filename.endswith(".md") and query in re.sub(r"\.md$", "", filename))))
 
 
-def get_random_entry():
-    """
-    retrieve a random encyclopedia entry
-    """
-
-
 def get_entry(title):
     """
     Retrieves an encyclopedia entry by its title. If no such

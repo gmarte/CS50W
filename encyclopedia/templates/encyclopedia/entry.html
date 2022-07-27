@@ -11,7 +11,9 @@
        <a href="{% url 'add' title %}" type="submit" value="Edit" class="btn btn-primary">Edit</a>
     </div>
 {% else %}
-    <p> page was not found</p>
+<div class="alert alert-danger" role="alert" >
+    <h4 class="alert-heading">Page was not found!</h4>    
+</div>
 {% endif %}
 
 {% endblock %}

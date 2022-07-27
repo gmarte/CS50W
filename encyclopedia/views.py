@@ -1,4 +1,5 @@
 from cProfile import label
+from html import entities
 from random import randrange
 from click import style
 from django import forms
@@ -45,10 +46,14 @@ def search(request):
             return render(request, "encyclopedia/search.html",
                           {'query': query,
                            "entries": entries})
-        elif len(entries) == 1:
+        elif len(entries) == 1 and entries[0] == query:
             return render(request, "encyclopedia/entry.html", {
                 "title": entries[0],
                 "entry": util.get_entry(entries[0])})
+        elif len(entries) == 1 and query in entries[0]:
+            return render(request, "encyclopedia/search.html",
+                          {'query': query,
+                           "entries": entries})
         else:
             return render(request, "encyclopedia/search.html", {})
 
@@ -70,7 +75,7 @@ def add(request, title=None):
             print(form.cleaned_data["state"])
             msg = util.save_entry(
                 form.cleaned_data["title"], form.cleaned_data["content"], form.cleaned_data["state"])
-            if msg == "success" or "edited":
+            if msg == "success" or msg == "edited":
                 return render(request, "encyclopedia/entry.html", {
                     "title": form.cleaned_data["title"],
                     "entry": util.get_entry(form.cleaned_data["title"])
