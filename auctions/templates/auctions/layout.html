@@ -34,7 +34,7 @@
                     <a class="nav-link" href="{% url 'index' %}">Active Listings <span class="sr-only">(current)</span></a>
                 </li> -->
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'index' %}">Create Listings</a>
+                    <a class="nav-link" href="{% url 'create' %}">Create Listings</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Watchlist</a>
@@ -65,10 +65,8 @@
                 <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
               </form>
-            </div>
-            
-          </nav>                        
-        <hr>
+            </div>            
+          </nav>                                
         {% block body %}
         {% endblock %}
     </body>

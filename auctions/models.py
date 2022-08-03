@@ -12,6 +12,8 @@ class Category(models.Model):
         verbose_name = "Category"
         verbose_name_plural = "Categories"
     text = models.CharField(max_length=64)        
+    def __str__(self):
+        return f"{self.text}"
 class Auction(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
