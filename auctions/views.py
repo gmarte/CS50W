@@ -40,7 +40,7 @@ class NewAuctionForm(forms.ModelForm):
 
 def index(request):
     return render(request, "auctions/index.html", {
-        "auctions" : Auction.objects.all()
+        "auctions" : Auction.objects.all(),        
     })
 
 
@@ -122,3 +122,9 @@ def create(request):
         return render(request, "auctions/create.html",{
             'form': NewAuctionForm(user=request.user)
             })        
+def auction_view(request, auction_id):
+    auction = Auction.objects.get(pk=auction_id)    
+    return render(request, "auctions/detail.html",{
+            'auction': auction,
+            'comments': auction.comments.all()
+            })   
