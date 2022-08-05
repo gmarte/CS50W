@@ -8,21 +8,40 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 
 
-from .models import User, Auction
+from .models import User, Auction, Comment, Bid
 
+class NewCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+        exclude = ['auction', 'user']
+        widgets = {
+            'text': forms.Textarea(attrs={'class': 'form-control'}),
 
-class NewAuctionForm(forms.ModelForm):
-    # create a ModelForm
+        }   
+    def __init__(self, *args, **kwargs):
+        self._user = kwargs.pop('user')
+        self._auction = kwargs.pop('auction')
+        super(NewCommentForm, self).__init__(*args, **kwargs)
+    def save(self, commit=True):
+        inst = super(NewCommentForm, self).save(commit=False)
+        inst.user = self._user
+        inst.auction = self._auction
+        if commit:
+            inst.save()
+            self.save_m2m()
+        return inst
+class NewAuctionForm(forms.ModelForm):    
     class Meta:
         model = Auction
         fields = "__all__"
-        exclude = ['status']
+        exclude = ['status','creator']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'urlimg': forms.TextInput(attrs={'class': 'form-control'}),
             'start_bid': forms.TextInput(attrs={'class': 'form-control'}),        
-            'creator': forms.HiddenInput(),
+            # 'creator': forms.HiddenInput(),
             # 'categories': forms.ModelMultipleChoiceField(),            
             # 'categories': forms.ChoiceField(attrs={'class': 'form-control'}),            
         }
@@ -31,7 +50,7 @@ class NewAuctionForm(forms.ModelForm):
         super(NewAuctionForm, self).__init__(*args, **kwargs)
     def save(self, commit=True):
         inst = super(NewAuctionForm, self).save(commit=False)
-        inst.author = self._user
+        inst.creator = self._user
         if commit:
             inst.save()
             self.save_m2m()
@@ -126,5 +145,26 @@ def auction_view(request, auction_id):
     auction = Auction.objects.get(pk=auction_id)    
     return render(request, "auctions/detail.html",{
             'auction': auction,
-            'comments': auction.comments.all()
-            })   
+            'comments': auction.comments.all(),
+            'categories': auction.categories.all(),
+            'bid' : auction.bids.last(),
+            'commentForm': NewCommentForm(user=request.user, auction = auction.id)
+            })
+
+def comment_post(request, auction_id):
+    if request.method == "POST":
+        auction = Auction.objects.get(pk=int(auction_id))
+        form = NewCommentForm(request.POST, user=request.user, auction = auction)
+        # auction = Auction.objects.get(pk=auction_id)
+        # comment = Comment.objects        
+        # auction.comments.add("test", request.user)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("view", args=(auction.id,)))
+        else:
+            return render(request, "auctions/detail.html",{
+            'auction': auction,
+            'comments': auction.comments.all(),
+            'bid' : auction.bids.last(),
+            'commentForm': form
+            })             
