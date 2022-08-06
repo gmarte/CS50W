@@ -16,7 +16,7 @@ class NewCommentForm(forms.ModelForm):
         fields = "__all__"
         exclude = ['auction', 'user']
         widgets = {
-            'text': forms.Textarea(attrs={'class': 'form-control'}),
+            'text': forms.Textarea(attrs={'class': 'form-control-lg'}),
 
         }   
     def __init__(self, *args, **kwargs):
@@ -59,7 +59,7 @@ class NewAuctionForm(forms.ModelForm):
 
 def index(request):
     return render(request, "auctions/index.html", {
-        "auctions" : Auction.objects.all(),        
+        "auctions" : Auction.objects.filter(status=True),        
     })
 
 
