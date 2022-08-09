@@ -25,7 +25,11 @@
                     </div>                    
                     <div class="d-flex flex-column mt-4"> 
                         <input type="text" /><button class="btn btn-primary btn-sm mt-2"  type="button">Bid</button>
-                        <button class="btn btn-outline-primary btn-sm mt-2" type="button">Add to Watchlist</button>
+                        {% if watch_listed %}
+                        <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="remove" name="remove" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Remove of Watchlist</a></button>
+                        {% else %}
+                            <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="add" name="add" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Add to Watchlist</a></button>
+                        {% endif %}
                         <button class="btn btn-primary btn-sm mt-2" type="button"><a class="btn btn-primary btn-sm" href="{% url 'index' %}" >Back to auctions</a></button>
                     </div>
                 </div>
@@ -34,7 +38,7 @@
         </div>
     </div>
 </div>
-<div class="container mt-5 mb-5">
+<!-- <div class="container mt-5 mb-5">
     {% if user.is_authenticated and user != auction.creator %}
     <form action="{% url 'comment' auction.id%}" method="post">
         {% csrf_token %}
@@ -46,10 +50,10 @@
         </div>
     </form> 
     {% endif %}
-</div>
+</div> -->
 <section>
-    <div class="container">
-        <div class="row">
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-center row">
             <div class="col-sm-5 col-md-6 col-12 pb-4">
                 {% if auction and comments %}
                 <h1>Comments</h1>
@@ -62,22 +66,25 @@
                         </div>  
                     {% endfor %}
                 {% endif %}              
-            </div>
+            </div>            
             <div class="col-lg-4 col-md-5 col-sm-4 offset-md-1 offset-sm-1 col-12 mt-4">
-                <form id="algin-form">
+                {% if user.is_authenticated %}
+                <form id="algin-form" action="{% url 'comment' auction.id%}" method="post">
+                    {% csrf_token %}
                     <div class="form-group">
                         <h4>Leave a comment</h4>
                         <label for="message">Message</label>
-                        <textarea name="msg" id=""msg cols="30" rows="5" class="form-control"></textarea>
+                        <textarea name="text" id="text" cols="30" rows="5" class="form-control"></textarea>
                     </div>                    
                     <!-- <div class="form-group">
                         <p class="text-secondary">If you have a <a href="#" class="alert-link">gravatar account</a> your address will be used to display your profile picture.</p>
                     </div>                     -->
                     <div class="form-group">
-                        <button type="button" id="post" class="btn">Post Comment</button>
+                        <button type="submit" id="post" class="btn">Post Comment</button>
                     </div>
                 </form>
-            </div>
+                {% endif %}
+            </div>            
         </div>
     </div>
 </section>

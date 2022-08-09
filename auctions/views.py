@@ -1,6 +1,6 @@
 from queue import Empty
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
+from django.db import IntegrityError, reset_queries
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 
 
-from .models import User, Auction, Comment, Bid
+from .models import User, Auction, Comment, Bid, Watchlist
 
 class NewCommentForm(forms.ModelForm):
     class Meta:
@@ -17,7 +17,6 @@ class NewCommentForm(forms.ModelForm):
         exclude = ['auction', 'user']
         widgets = {
             'text': forms.Textarea(attrs={'class': 'form-control-lg'}),
-
         }   
     def __init__(self, *args, **kwargs):
         self._user = kwargs.pop('user')
@@ -56,24 +55,79 @@ class NewAuctionForm(forms.ModelForm):
             self.save_m2m()
         return inst
 
+@login_required
+def create(request):
+    if request.method == 'POST':
+        form = NewAuctionForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "auctions/create.html",{
+            'form': form
+            })            
 
+    else:        
+        return render(request, "auctions/create.html",{
+            'form': NewAuctionForm(user=request.user)
+            })        
+def auction_view(request, auction_id):
+    auction = Auction.objects.get(pk=auction_id)    
+    user = request.user
+    watch_listed = False
+    wl = user.watchlist.all().first()    
+    print(wl)  
+    if wl:
+        watch_listed = True    
+    # print(watch_listed)
+    return render(request, "auctions/detail.html",{
+            'auction': auction,
+            'comments': auction.comments.all(),
+            'categories': auction.categories.all(),
+            'bid' : auction.bids.last(),
+            'watch_listed': watch_listed,
+            'commentForm': NewCommentForm(user=request.user, auction = auction.id)
+            })
+
+@login_required
+def comment_post(request, auction_id):
+    if request.method == "POST":
+        auction = Auction.objects.get(pk=int(auction_id))
+        form = NewCommentForm(request.POST, user=request.user, auction = auction)
+        # auction = Auction.objects.get(pk=auction_id)
+        # comment = Comment.objects        
+        # auction.comments.add("test", request.user)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse("view", args=(auction.id,)))
+        else:
+            return render(request, "auctions/detail.html",{
+            'auction': auction,
+            'comments': auction.comments.all(),
+            'bid' : auction.bids.last(),
+            'commentForm': form
+            })             
 def index(request):
     return render(request, "auctions/index.html", {
         "auctions" : Auction.objects.filter(status=True),        
     })
 
+@login_required
+def watchlist_add(request,auction_id):
+    if request.method == 'GET':
+        auction = Auction.objects.get(pk=int(auction_id))    
+        user = request.user
+        wl = user.watchlist.filter(auction=auction_id)     
+        print(wl)           
+        if "add" in request.GET:            
+            wl.auction.add(auction)
+            wl.save()
+        elif "remove" in request.GET:
+            print(wl.aution)
+            wl.auction.remove(auction)                        
+        return HttpResponseRedirect(reverse("view", args=(auction.id,)))
 
-def login_view(request):
-    # if request.method == "GET":
-    #     # try: 
-    #     #     next = request.GET["next"]
-    #     # except 
-    #     if request.GET["next"]:   
-    #         return render(request, "auctions/login.html",{
-    #             "next":request.GET["next"] 
-    #         })        
-    #     else:
-    #         return render(request, "auctions/login.html")
+def login_view(request):    
     if request.method == "POST":
         # Attempt to sign user in
         username = request.POST["username"]
@@ -91,11 +145,9 @@ def login_view(request):
     else:
         return render(request, "auctions/login.html")
 
-
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
-
 
 def register(request):
     if request.method == "POST":
@@ -121,50 +173,4 @@ def register(request):
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/register.html")
-
-
-# @login_required(login_url='/login')
-@login_required
-def create(request):
-    if request.method == 'POST':
-        form = NewAuctionForm(request.POST, user=request.user)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            return render(request, "auctions/create.html",{
-            'form': form
-            })            
-
-    else:        
-        return render(request, "auctions/create.html",{
-            'form': NewAuctionForm(user=request.user)
-            })        
-def auction_view(request, auction_id):
-    auction = Auction.objects.get(pk=auction_id)    
-    return render(request, "auctions/detail.html",{
-            'auction': auction,
-            'comments': auction.comments.all(),
-            'categories': auction.categories.all(),
-            'bid' : auction.bids.last(),
-            'commentForm': NewCommentForm(user=request.user, auction = auction.id)
-            })
-
-def comment_post(request, auction_id):
-    if request.method == "POST":
-        auction = Auction.objects.get(pk=int(auction_id))
-        form = NewCommentForm(request.POST, user=request.user, auction = auction)
-        # auction = Auction.objects.get(pk=auction_id)
-        # comment = Comment.objects        
-        # auction.comments.add("test", request.user)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse("view", args=(auction.id,)))
-        else:
-            return render(request, "auctions/detail.html",{
-            'auction': auction,
-            'comments': auction.comments.all(),
-            'bid' : auction.bids.last(),
-            'commentForm': form
-            })             
+        return render(request, "auctions/register.html")            
