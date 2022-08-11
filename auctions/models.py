@@ -44,3 +44,5 @@ class Bid(models.Model):
 class Watchlist(models.Model):
     user = models.ForeignKey(User, related_name="watchlist", on_delete=models.CASCADE)
     auction = models.ManyToManyField(Auction, related_name="watchlist", blank=True)
+    def __str__(self):
+        return f"watchlist for user: {self.user}"

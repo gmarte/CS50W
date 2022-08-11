@@ -73,21 +73,30 @@ def create(request):
             })        
 def auction_view(request, auction_id):
     auction = Auction.objects.get(pk=auction_id)    
-    user = request.user
     watch_listed = False
-    wl = user.watchlist.all().first()    
-    print(wl)  
-    if wl:
-        watch_listed = True    
-    # print(watch_listed)
+    if request.user:
+        user = request.user    
+        watchlist = auction.watchlist.all()        
+        for w in watchlist:            
+            if w.user == user:
+                watch_listed = True                
+                break            
     return render(request, "auctions/detail.html",{
             'auction': auction,
-            'comments': auction.comments.all(),
+            'comments': auction.comments.all().order_by('-date'),
             'categories': auction.categories.all(),
             'bid' : auction.bids.last(),
             'watch_listed': watch_listed,
             'commentForm': NewCommentForm(user=request.user, auction = auction.id)
             })
+def auction_close(request, auction_id):
+    if request.method == "POST":
+        user = request.user
+        auction = Auction.objects.get(pk=int(auction_id))
+        auction.status = False
+        print(auction.status)
+        auction.save()
+    return HttpResponseRedirect(reverse("view", args=(auction.id,)))
 
 @login_required
 def comment_post(request, auction_id):
@@ -111,22 +120,61 @@ def index(request):
     return render(request, "auctions/index.html", {
         "auctions" : Auction.objects.filter(status=True),        
     })
-
+@login_required
+def watchlist_view(request):
+    user = request.user
+    auctions = user.watchlist.first().auction.all()
+    return render(request, "auctions/watchlist.html", {
+        "auctions" : auctions,        
+    })
 @login_required
 def watchlist_add(request,auction_id):
-    if request.method == 'GET':
+    if request.method == 'GET':        
         auction = Auction.objects.get(pk=int(auction_id))    
         user = request.user
-        wl = user.watchlist.filter(auction=auction_id)     
-        print(wl)           
-        if "add" in request.GET:            
+        wl = Watchlist.objects.get(user=user)         
+        if wl.auction.filter(pk = auction.id).count() > 0:                                    
+            wl.auction.remove(auction)
+        else:
             wl.auction.add(auction)
-            wl.save()
-        elif "remove" in request.GET:
-            print(wl.aution)
-            wl.auction.remove(auction)                        
+            wl.save()                                                
         return HttpResponseRedirect(reverse("view", args=(auction.id,)))
+@login_required
+def bid(request, auction_id):
+    if request.method == "POST":
+        auction = Auction.objects.get(pk=int(auction_id))    
+        user = request.user
+        watch_listed = False
+        # recieved a bid
+        userBid = float(request.POST["bid"])
+        print(userBid)        
+        if auction.bids.last():
+            highiestBid = auction.bids.last().price
+        else:
+            highiestBid = 0        
+        # verified that the bid is greater than the initial bid factor        
+        print(highiestBid)
+        if userBid > highiestBid and highiestBid > 0:
+            bid = Bid(price=userBid, user=user, auction=auction)
+            bid.save()
+            bidMessage = "You have taken the lead!"
+        elif userBid > auction.start_bid and highiestBid == 0:
+            bid = Bid(price=userBid, user=user, auction=auction)
+            bid.save()
+            bidMessage = "New highest bidder!"
+        else:
+            bidMessage = "Your bid must be higher!"
+            return render(request, "auctions/detail.html",{
+            'auction': auction,
+            'comments': auction.comments.all().order_by('-date'),
+            'categories': auction.categories.all(),
+            'bid' : auction.bids.last(),
+            'watch_listed': watch_listed,
+            'bidMessage': bidMessage,
+            'commentForm': NewCommentForm(user=request.user, auction = auction.id)
+            })
 
+        return HttpResponseRedirect(reverse("view", args=(auction.id,)))                
 def login_view(request):    
     if request.method == "POST":
         # Attempt to sign user in
@@ -166,6 +214,8 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            w = Watchlist(user=user)
+            w.save()
         except IntegrityError:
             return render(request, "auctions/register.html", {
                 "message": "Username already taken."

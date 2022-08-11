@@ -21,14 +21,37 @@
                 </div>
                 <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                     <div class="d-flex flex-row align-items-center">
-                        <h4 class="mr-1">${{bid}}</h4><span class="strike-text">${{auction.start_bid}}</span>
-                    </div>                    
-                    <div class="d-flex flex-column mt-4"> 
-                        <input type="text" /><button class="btn btn-primary btn-sm mt-2"  type="button">Bid</button>
-                        {% if watch_listed %}
-                        <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="remove" name="remove" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Remove of Watchlist</a></button>
+                        {% if bid %}
+                        <h4 class="mr-1">${{bid}}</h4><span class="strike-text">starting bid: ${{auction.start_bid}}</span>
                         {% else %}
-                            <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="add" name="add" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Add to Watchlist</a></button>
+                        <h4 class="mr-1">${{auction.start_bid}}</h4>
+                        {% endif %}                        
+                    </div>                    
+                    <div class="d-flex flex-column mt-4">                        
+                        {% if user == auction.creator %}
+                        <form action="{% url 'close' auction.id %}"  method="post">
+                            {% csrf_token %}                                                    
+                            <button class="btn btn-primary btn-sm mt-2" type="submit">Close</button>
+                        </form>
+                        {% else %}                        
+                            {% if bidMessage %}
+                            <div class="alert alert-dark" role="alert">
+                                {{bidMessage}}
+                            </div>                       
+                            {% endif %}
+                            <form action="{% url 'bid' auction.id %}"  method="post">
+                                {% csrf_token %}                        
+                                <input class="form-control" name="bid" type="text">
+                                <button class="btn btn-primary btn-sm mt-2" type="submit">Bid</button>
+                            </form>
+                            <form action="{% url 'watchlist' auction.id %}"  method="get">
+                                {% csrf_token %}
+                                {% if watch_listed %}
+                                <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="remove" name="remove" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Remove of Watchlist</a></button>
+                                {% else %}
+                                    <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="add" name="add" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Add to Watchlist</a></button>
+                                {% endif %}
+                            </form>
                         {% endif %}
                         <button class="btn btn-primary btn-sm mt-2" type="button"><a class="btn btn-primary btn-sm" href="{% url 'index' %}" >Back to auctions</a></button>
                     </div>
