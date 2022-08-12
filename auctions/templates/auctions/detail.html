@@ -22,18 +22,20 @@
                 <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                     <div class="d-flex flex-row align-items-center">
                         {% if bid %}
-                        <h4 class="mr-1">${{bid}}</h4><span class="strike-text">starting bid: ${{auction.start_bid}}</span>
+                        <h4 class="mr-1">{% if winner %} WINNER! {% endif %}${{bid}}</h4><span class="strike-text">starting bid: ${{auction.start_bid}}</span>
                         {% else %}
                         <h4 class="mr-1">${{auction.start_bid}}</h4>
                         {% endif %}                        
                     </div>                    
                     <div class="d-flex flex-column mt-4">                        
                         {% if user == auction.creator %}
-                        <form action="{% url 'close' auction.id %}"  method="post">
-                            {% csrf_token %}                                                    
-                            <button class="btn btn-primary btn-sm mt-2" type="submit">Close</button>
-                        </form>
-                        {% else %}                        
+                            {% if auction.status == True %}
+                            <form action="{% url 'close' auction.id %}"  method="post">
+                                {% csrf_token %}                                                    
+                                <button class="btn btn-primary btn-sm mt-2" type="submit">Close</button>
+                            </form>
+                            {% endif %}
+                        {% elif auction.status == True %}                        
                             {% if bidMessage %}
                             <div class="alert alert-dark" role="alert">
                                 {{bidMessage}}

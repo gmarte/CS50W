@@ -14,6 +14,9 @@ class Category(models.Model):
     text = models.CharField(max_length=64)        
     def __str__(self):
         return f"{self.text}"
+    @property
+    def count(self):
+        return Auction.objects.filter(categories__pk=self.pk).count()
 class Auction(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()

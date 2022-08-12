@@ -1,3 +1,4 @@
+from argparse import Action
 from queue import Empty
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError, reset_queries
@@ -8,7 +9,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 
 
-from .models import User, Auction, Comment, Bid, Watchlist
+from .models import Category, User, Auction, Comment, Bid, Watchlist
 
 class NewCommentForm(forms.ModelForm):
     class Meta:
@@ -54,7 +55,7 @@ class NewAuctionForm(forms.ModelForm):
             inst.save()
             self.save_m2m()
         return inst
-
+# Region Auction
 @login_required
 def create(request):
     if request.method == 'POST':
@@ -74,18 +75,22 @@ def create(request):
 def auction_view(request, auction_id):
     auction = Auction.objects.get(pk=auction_id)    
     watch_listed = False
-    if request.user:
-        user = request.user    
-        watchlist = auction.watchlist.all()        
-        for w in watchlist:            
-            if w.user == user:
-                watch_listed = True                
-                break            
+    # verify watchlist
+    if request.user.is_authenticated:
+        user = request.user            
+        if auction.watchlist.filter(user=user).count() > 0:
+            watch_listed = True
+    # verify status
+    if auction.status == False:
+        winner = auction.bids.last().user
+    else:
+        winner = None
     return render(request, "auctions/detail.html",{
             'auction': auction,
             'comments': auction.comments.all().order_by('-date'),
             'categories': auction.categories.all(),
             'bid' : auction.bids.last(),
+            'winner': winner,
             'watch_listed': watch_listed,
             'commentForm': NewCommentForm(user=request.user, auction = auction.id)
             })
@@ -97,15 +102,12 @@ def auction_close(request, auction_id):
         print(auction.status)
         auction.save()
     return HttpResponseRedirect(reverse("view", args=(auction.id,)))
-
+# endregion
 @login_required
 def comment_post(request, auction_id):
     if request.method == "POST":
         auction = Auction.objects.get(pk=int(auction_id))
-        form = NewCommentForm(request.POST, user=request.user, auction = auction)
-        # auction = Auction.objects.get(pk=auction_id)
-        # comment = Comment.objects        
-        # auction.comments.add("test", request.user)
+        form = NewCommentForm(request.POST, user=request.user, auction = auction)        
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse("view", args=(auction.id,)))
@@ -118,7 +120,7 @@ def comment_post(request, auction_id):
             })             
 def index(request):
     return render(request, "auctions/index.html", {
-        "auctions" : Auction.objects.filter(status=True),        
+        "auctions" : Auction.objects.all(),        
     })
 @login_required
 def watchlist_view(request):
@@ -145,15 +147,18 @@ def bid(request, auction_id):
         auction = Auction.objects.get(pk=int(auction_id))    
         user = request.user
         watch_listed = False
+        if auction.watchlist.filter(user=user).count() > 0:
+            watch_listed = True
         # recieved a bid
-        userBid = float(request.POST["bid"])
-        print(userBid)        
+        if request.POST["bid"]:
+            userBid = float(request.POST["bid"])              
+        else:            
+            userBid = 0
         if auction.bids.last():
             highiestBid = auction.bids.last().price
         else:
             highiestBid = 0        
-        # verified that the bid is greater than the initial bid factor        
-        print(highiestBid)
+        # verified that the bid is greater than the initial bid factor                
         if userBid > highiestBid and highiestBid > 0:
             bid = Bid(price=userBid, user=user, auction=auction)
             bid.save()
@@ -175,6 +180,18 @@ def bid(request, auction_id):
             })
 
         return HttpResponseRedirect(reverse("view", args=(auction.id,)))                
+# Region Categories
+def categories_view(request):
+    return render(request, "auctions/categories.html",{
+        'categories': Category.objects.all()
+    })
+def categories_detail(request, category_id):
+    auction = Auction.objects.filter(categories__pk=category_id)
+    return render(request, "auctions/categories_detail.html",{
+        'auctions': auction
+    })
+# endregion    
+# region User Auth
 def login_view(request):    
     if request.method == "POST":
         # Attempt to sign user in
@@ -223,4 +240,5 @@ def register(request):
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/register.html")            
+        return render(request, "auctions/register.html")  
+# endregion                  
