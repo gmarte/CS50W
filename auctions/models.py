@@ -27,7 +27,13 @@ class Auction(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.BooleanField(default=True)
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.title}"    
+    @property
+    def current_price(self):
+        current_price = self.start_bid
+        if self.bids.last():
+            current_price = self.bids.last()
+        return current_price
 # auctions comments
 class Comment(models.Model):
     text = models.TextField()
@@ -43,7 +49,7 @@ class Bid(models.Model):
     auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name="bids")    
     user = models.ForeignKey(User, on_delete=models.PROTECT)   
     def __str__(self):
-        return f"{self.price} ({self.user})"
+        return f"{self.price}"
 class Watchlist(models.Model):
     user = models.ForeignKey(User, related_name="watchlist", on_delete=models.CASCADE)
     auction = models.ManyToManyField(Auction, related_name="watchlist", blank=True)

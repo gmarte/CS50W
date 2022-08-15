@@ -120,12 +120,12 @@ def comment_post(request, auction_id):
             })             
 def index(request):
     return render(request, "auctions/index.html", {
-        "auctions" : Auction.objects.all(),        
+        "auctions" : Auction.objects.filter(status=True).order_by('-date'),        
     })
 @login_required
 def watchlist_view(request):
     user = request.user
-    auctions = user.watchlist.first().auction.all()
+    auctions = user.watchlist.first().auction.all().order_by('-date')
     return render(request, "auctions/watchlist.html", {
         "auctions" : auctions,        
     })

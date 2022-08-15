@@ -4,6 +4,7 @@
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-center row">
         <div class="col-md-10">
+            <h1>Active listings</h1>
             <!-- one row -->
             {% for auction in auctions %}
             <div class="row p-2 bg-white border rounded">
@@ -15,7 +16,7 @@
                 <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                     <div class="d-flex flex-row align-items-center">
                         {% if auction.status == True %}
-                        <h4 class="mr-1">Starting from ${{auction.start_bid}}</h4>
+                        <h4 class="mr-1">${{auction.current_price}}</h4>
                         {% else %}
                         <h4 class="mr-1">CLOSED!</h4>
                         {% endif %}

@@ -22,7 +22,7 @@
                 <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                     <div class="d-flex flex-row align-items-center">
                         {% if bid %}
-                        <h4 class="mr-1">{% if winner %} WINNER! {% endif %}${{bid}}</h4><span class="strike-text">starting bid: ${{auction.start_bid}}</span>
+                        <h4 class="mr-1">{% if winner == user %} YOU ARE THE WINNER! {% elif winner %} WINNER! {% endif %}${{bid}}</h4><span class="strike-text">starting bid: ${{auction.start_bid}}</span>
                         {% else %}
                         <h4 class="mr-1">${{auction.start_bid}}</h4>
                         {% endif %}                        
