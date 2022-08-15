@@ -15,9 +15,9 @@
                 <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                     <div class="d-flex flex-row align-items-center">
                         {% if auction.status == True %}
-                        <h4 class="mr-1">Starting from ${{auction.start_bid}}</h4>
+                        <h4 class="mr-1">${{auction.current_price}}</h4>
                         {% else %}
-                        <h4 class="mr-1">CLOSED!</h4>
+                        <h4 class="mr-1"><span class="badge badge-pill badge-primary">CLOSED!</span></h4>
                         {% endif %}
                     </div>                    
                     <div class="d-flex flex-column mt-4">

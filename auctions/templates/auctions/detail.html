@@ -22,7 +22,13 @@
                 <div class="align-items-center align-content-center col-md-3 border-left mt-1">
                     <div class="d-flex flex-row align-items-center">
                         {% if bid %}
-                        <h4 class="mr-1">{% if winner == user %} YOU ARE THE WINNER! {% elif winner %} WINNER! {% endif %}${{bid}}</h4><span class="strike-text">starting bid: ${{auction.start_bid}}</span>
+                        <h4 class="mr-1">
+                            {% if winner == user %}                
+                            <span class="badge badge-success">YOU ARE THE WINNER!</span>                            
+                             {% elif winner %} 
+                             <span class="badge badge-info">SOLD!</span>                             
+                              {% endif %}${{bid}}</h4>
+                             <!-- <span class="strike-text">starting bid: ${{auction.start_bid}}</span> -->
                         {% else %}
                         <h4 class="mr-1">${{auction.start_bid}}</h4>
                         {% endif %}                        
@@ -32,7 +38,7 @@
                             {% if auction.status == True %}
                             <form action="{% url 'close' auction.id %}"  method="post">
                                 {% csrf_token %}                                                    
-                                <button class="btn btn-primary btn-sm mt-2" type="submit">Close</button>
+                                <button class="btn btn-outline-danger btn-sm btn-block mt-2" type="submit">Close</button>
                             </form>
                             {% endif %}
                         {% elif auction.status == True %}                        
@@ -44,18 +50,18 @@
                             <form action="{% url 'bid' auction.id %}"  method="post">
                                 {% csrf_token %}                        
                                 <input class="form-control" name="bid" type="text">
-                                <button class="btn btn-primary btn-sm mt-2" type="submit">Bid</button>
+                                <button class="btn btn-outline-primary btn-sm btn-block mt-2" type="submit">Bid</button>
                             </form>
                             <form action="{% url 'watchlist' auction.id %}"  method="get">
                                 {% csrf_token %}
                                 {% if watch_listed %}
-                                <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="remove" name="remove" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Remove of Watchlist</a></button>
+                                <button class="btn btn-primary btn-sm btn-block mt-2" type="button"><a id="remove" name="remove" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Remove of Watchlist</a></button>
                                 {% else %}
-                                    <button class="btn btn-outline-primary btn-sm mt-2" type="button"><a id="add" name="add" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Add to Watchlist</a></button>
+                                    <button class="btn btn-primary btn-sm btn-block mt-2" type="button"><a id="add" name="add" class="btn btn-primary btn-sm" href="{% url 'watchlist' auction.id %}" >Add to Watchlist</a></button>
                                 {% endif %}
                             </form>
                         {% endif %}
-                        <button class="btn btn-primary btn-sm mt-2" type="button"><a class="btn btn-primary btn-sm" href="{% url 'index' %}" >Back to auctions</a></button>
+                        <button class="btn btn-primary btn-sm btn-block mt-2" type="button"><a class="btn btn-primary btn-sm" href="{% url 'index' %}" >Back to auctions</a></button>
                     </div>
                 </div>
             </div>  
