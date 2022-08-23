@@ -5,11 +5,31 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#sendmail').addEventListener('click', sendmail);
 
   // By default, load the inbox
   load_mailbox('inbox');
 });
-function sendmail(){
+function sendmail(event){
+  event.preventDefault()
+
+  const recipients = document.querySelector("#compose-recipients").value;  
+  const subject = document.querySelector("#compose-subject").value;  
+  const body = document.querySelector("#compose-body").value;
+  // Post email to API route
+  fetch('/emails' , {
+    method: 'POST',
+    body: JSON.stringify({
+      recipients: recipients,
+      subject: subject,
+      body: body
+    })
+  })
+  .then(response => response.json())
+  .then(result => {
+    console.log(result)
+  });
+  //load_mailbox('sent');  
   return false;
 }
 
@@ -22,7 +42,7 @@ function compose_email() {
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  document.querySelector('#compose-body').value = '';  
 }
 
 function load_mailbox(mailbox) {
