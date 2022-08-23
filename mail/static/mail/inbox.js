@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // By default, load the inbox
   load_mailbox('inbox');
 });
+function sendmail(){
+  return false;
+}
 
 function compose_email() {
 
