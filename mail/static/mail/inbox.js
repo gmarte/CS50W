@@ -166,7 +166,7 @@ function view_email(id){
       //  grparchive.addEventListener('click', email_archived(email['id'], !email['archived']));
        grparchive.addEventListener('click', () => {
         email_archived(email['id'], !email['archived']);        
-        load_mailbox('archive');
+        load_mailbox('inbox');
        });
        div.appendChild(grparchive);
     
@@ -222,7 +222,10 @@ function load_mailbox(mailbox) {
 
   // getting the emails
   
-  fetch('/emails/' + mailbox)
+  fetch('/emails/' + mailbox, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }})
     .then(response => response.json())
     .then(emails => {
       emails.forEach(email => {        
