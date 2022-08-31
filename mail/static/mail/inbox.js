@@ -52,7 +52,7 @@ function sendmail(e){
     })
   })
   .then(response => { 
-    if (!response.ok) {throw response }
+    if (!response.ok) {throw response  }//throw exception
     else{return response.json()}
   })
   .then(result => {
@@ -89,19 +89,17 @@ function buttongroup(email){
     const reply = document.createElement('button');
     reply.className = "btn btn-outline-primary";       
     reply.innerHTML = replyIcon;
-    reply.addEventListener('click', function() {
-    console.log('click of reply');
-    compose_email();    
-      // populate fields with information from email
+    reply.addEventListener('click', function() {    
+    compose_email();  // show form         
     document.querySelector('#compose-recipients').value = email.sender;
     let subject = email.subject;    
-    if (subject.split(" ", 1)[0] != "Re:") {
+    if (subject.split(" ", 1)[0] != "Re:") { //Reply tittle logic
       subject = "Re: " + subject;
     }
     document.querySelector('#compose-subject').value = subject;
 
     let body = `
-      >>> On ${email['timestamp']}, ${email['sender']} wrote: ${email['body']}
+      >>> On ${email.timestamp}, ${email.sender} wrote: ${email.body}
     `;
     document.querySelector('#compose-body').value = body;
     });
@@ -109,17 +107,16 @@ function buttongroup(email){
 
     const grparchive = document.createElement('button');
     grparchive.className = "btn btn-outline-primary";
-    grparchive.innerHTML = !email['archived'] ? archiveIcon:unArchiveIcon;
-  //  grparchive.addEventListener('click', email_archived(email['id'], !email['archived']));
-  div.appendChild(grparchive);
+    grparchive.innerHTML = !email.archived ? archiveIcon:unArchiveIcon;  
+    div.appendChild(grparchive);
     grparchive.addEventListener('click', () => email_archived(email.id, !email.archived));                    
     
 
     const grpread = document.createElement('button');
     grpread.className = "btn btn-outline-primary";
-    grpread.innerHTML = !email['read'] ? readIcon:unReadIcon;
+    grpread.innerHTML = !email.read ? readIcon:unReadIcon;
     div.appendChild(grpread);
-    grpread.addEventListener('click', () => email_read(email['id'], !email['read']) );
+    grpread.addEventListener('click', () => email_read(email.id, !email.read) );
 
    return div;
 }
@@ -128,17 +125,16 @@ function buttonGroupInbox(email){
   div.className = 'btn-group sm-2';    
   const grparchive = document.createElement('button');
   grparchive.className = "btn btn-outline-primary";
-  grparchive.innerHTML = !email['archived'] ? archiveIcon:unArchiveIcon;
-  //  grparchive.addEventListener('click', email_archived(email['id'], !email['archived']));
+  grparchive.innerHTML = !email.archived ? archiveIcon:unArchiveIcon;  
   div.appendChild(grparchive);
   grparchive.addEventListener('click', () => email_archived(email.id, !email.archived));                    
     
 
   const grpread = document.createElement('button');
   grpread.className = "btn btn-outline-primary";
-  grpread.innerHTML = !email['read'] ? readIcon:unReadIcon;
+  grpread.innerHTML = !email.read ? readIcon:unReadIcon;
   div.appendChild(grpread);
-  grpread.addEventListener('click', () => email_read(email['id'], !email['read']) );
+  grpread.addEventListener('click', () => email_read(email.id, !email.read) );
 
   return div;
 }
@@ -146,7 +142,7 @@ function view_email(id){
   fetch('/emails/'+ id)
     .then(response => response.json())
     .then(email => {
-      const email_views = document.querySelector('#emails-single');
+      const email_views = document.querySelector('#emails-single'); // single email view div
       // log email
       console.log(email);
       // mark as read
@@ -154,15 +150,11 @@ function view_email(id){
       document.querySelector('#emails-view').style.display = 'none';
       document.querySelector('#compose-view').style.display = 'none';
       email_views.style.display = 'block';
-      email_views.innerHTML = ``;                           
-      // email_views.innerHTML = '';
-      let btnGroup = buttongroup(email);
-      // email_views.appendChild(btnGroup);
-      // Show the mailbox name
-      // email_views.innerHTML += `<h3 class="mt-3">${email['subject'].toUpperCase()}</h3><span class="badge badge-primary">date: ${email['timestamp']}</span>`;
+      email_views.innerHTML = ``;                                 
+      let btnGroup = buttongroup(email);      
       let the_email = document.createElement('div');
       the_email.innerHTML = `
-      <h3 class="mt-3">${email['subject'].toUpperCase()}</h3><span class="badge badge-primary float-right">date: ${email['timestamp']}</span>
+      <h3 class="mt-3">${email.subject.toUpperCase()}</h3><span class="badge badge-primary float-right">date: ${email.timestamp}</span>
       <div><span class="font-weight-bold">from: ${email['sender']}</span></div>
       <div><span>to: ${email['recipients']} </span></div>
       <textarea disabled class="form-control">${email.body}</textarea>
@@ -177,7 +169,7 @@ function email_read(id, status){
     method: 'PUT',
     body: JSON.stringify({ read : status })
   });
-  if (!status){
+  if (!status){ // doesnt reload unless is from read -> unread
     load_mailbox('inbox');
     window.location.reload();
   }
@@ -202,10 +194,8 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   email_views.innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
-  
 
   // getting the emails
-  
   fetch('/emails/' + mailbox, {
     headers: {
       'Cache-Control': 'no-cache'
@@ -216,9 +206,8 @@ function load_mailbox(mailbox) {
         let div = document.createElement('div');
         let ahref = document.createElement('a');
         div.classList.add("list-group");
-        ahref.className = "list-group-item text-decoration-none";
-        // console.log("read or not" + email['read']);
-        if (email['read']){
+        ahref.className = "list-group-item text-decoration-none";        
+        if (email.read){ // background color read:unread
           ahref.classList.add("read");
         }else {
           ahref.classList.remove("read");
@@ -232,8 +221,7 @@ function load_mailbox(mailbox) {
             <span class="badge badge-info m-2">${mailbox === 'inbox'?email.sender: email.recipients}</span>
             <span class="pr-2">${email.subject}</span>
             <span class="text-muted text-truncate" style="font-size: 11px; max-width: 25%">${email.body.substring(0,email.body.length > 20? 20:email.body.length)}</span>            
-        `;
-        // add listener and append to DOM
+        `;        
         let btnGroup = buttonGroupInbox(email);
         ahref.addEventListener('click', () => view_email(email.id));
         if (mailbox != 'sent'){
