@@ -3,12 +3,15 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
-from .models import User
+from .models import User, Post
 
 
 def index(request):
-    return render(request, "network/index.html")
+    return render(request, "network/index.html", {
+        "posts": Post.objects.all()
+    })
 
 
 def login_view(request):
@@ -60,3 +63,28 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+
+def profile(request, user_id):
+    profile_user = User.objects.get(pk=user_id)
+    user = request.user
+    if user.is_authenticated:
+        follower = profile_user.followers.filter(id=user.id).exists()
+    else:
+        follower = False
+
+    return render(request, "network/profile.html", {
+        "user": profile_user,
+        "follower": follower,
+        "posts": Post.objects.filter(creator=profile_user).all()
+    })
+
+
+@login_required
+def posts(request):
+    user = request.user
+    if request.method == "POST":
+        description = request.POST["description"]
+        post = Post(description=description, creator=user)
+        post.save()
+    return HttpResponseRedirect(reverse("index"))

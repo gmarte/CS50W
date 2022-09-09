@@ -1,5 +1,43 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <div class="container">
+        <div id="post" class="row">
+            <form class="form-group col-xs-12 col-md-6 col-lg-8" method="post" action="{% url 'posts' %}">
+            {% csrf_token %}
+            <div>
+                <h4>What's on your mind</h4>
+                <input class="form-control" id="description" name="description"  type="text" placeholder="Post your deepest thoughts">
+                <button class="btn btn-sm btn-success col-12 p-2 mt-1" type="submit">Post</button>
+            </div>
+        </form>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-lg-8 bootstrap snippets bootdeys">
+                <div class="widget panel">
+                  <div class="panel-body">
+                    <h4 class="mb0">Latest Posts
+                      <i class="fa fa-twitter text-info pull-right"></i>
+                    </h4>
+                    <hr>
+                   </div>
+                </div>
+            </div>
+        </div>        
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-lg-8 bootstrap snippets bootdeys">
+                <div class="widget panel">                
+                  <ul class="list-group">
+                    {% for post in posts %}
+                    <li class="list-group-item">
+                      <a href="{% url 'profile' post.creator.id %}"><h2>{{post.creator}}</h2></a>
+                      <p class="nm">{{post.description}}</p>
+                      <small class="text-muted">{{post.timestamp}}</small>
+                    </li>
+                    {% endfor %}                      
+                  </ul>
+                </div>
+            </div>
+        </div>                        
+    </div>
 {% endblock %}
