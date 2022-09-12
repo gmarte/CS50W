@@ -74,7 +74,7 @@ def profile(request, user_id):
         follower = False
 
     return render(request, "network/profile.html", {
-        "user": profile_user,
+        "profile": profile_user,
         "follower": follower,
         "posts": Post.objects.filter(creator=profile_user).all()
     })
@@ -85,6 +85,12 @@ def posts(request):
     user = request.user
     if request.method == "POST":
         description = request.POST["description"]
-        post = Post(description=description, creator=user)
-        post.save()
+        if description:
+            post = Post(description=description, creator=user)
+            post.save()
+        else:
+            return render(request, "network/index.html", {
+                "message": "You must complete the description."
+            })
+
     return HttpResponseRedirect(reverse("index"))

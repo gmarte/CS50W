@@ -2,10 +2,13 @@
 
 {% block body %}
     <div class="container">
-        <div id="post" class="row">
+        <div id="post" class="row">                    
             <form class="form-group col-xs-12 col-md-6 col-lg-8" method="post" action="{% url 'posts' %}">
             {% csrf_token %}
             <div>
+                {% if message %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endif %} 
                 <h4>What's on your mind</h4>
                 <input class="form-control" id="description" name="description"  type="text" placeholder="Post your deepest thoughts">
                 <button class="btn btn-sm btn-success col-12 p-2 mt-1" type="submit">Post</button>
