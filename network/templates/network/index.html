@@ -35,7 +35,7 @@
                     <li class="list-group-item">
                       <a href="{% url 'profile' post.creator.id %}"><h2>{{post.creator}}</h2></a>
                       <p class="nm">{{post.description}}</p>
-                      <small class="text-muted">{{post.timestamp}}</small>
+                      <small class="text-muted">{{post.time_passed}}</small>
                     </li>
                     {% endfor %}                      
                   </ul>

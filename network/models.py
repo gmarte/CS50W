@@ -1,6 +1,9 @@
+from datetime import date, datetime
+from dateutil import relativedelta
 from statistics import mode
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -28,6 +31,23 @@ class Post(models.Model):
 
     def __str__(self):
         return self.description + ' >> ' + str(self.creator) + ' >> ' + self.timestamp.strftime("%b %d %Y, %I:%M %p")
+
+    @property
+    def time_passed(self):
+        # Timezone info of your timezone aware variable
+        timezone = self.timestamp.tzinfo
+        now = datetime.now(timezone)
+        delta = relativedelta.relativedelta(now, self.timestamp)
+        print(delta)
+        if delta.years > 0:
+            output = f"{delta.years} Years, {delta.months} months, {delta.days} days ago"
+        elif delta.months > 0:
+            output = f"{delta.months} months, {delta.days} days ago"
+        elif delta.days > 0:
+            output = f"{delta.days} days, {delta.minutes} minutes ago"
+        else:
+            output = f"{delta.minutes} minutes ago"
+        return output
 
     class Meta:
         ordering = ['-timestamp']
