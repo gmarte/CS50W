@@ -1,9 +1,12 @@
+import json
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Post
 
@@ -80,8 +83,9 @@ def profile(request, user_id):
     })
 
 
+@csrf_exempt
 @login_required
-def posts(request):
+def posts(request, post_id=''):
     user = request.user
     if request.method == "POST":
         description = request.POST["description"]
@@ -92,5 +96,18 @@ def posts(request):
             return render(request, "network/index.html", {
                 "message": "You must complete the description."
             })
+    elif request.method == "PUT":
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return JsonResponse({"error": "Post not found."}, status=404)
+        data = json.loads(request.body)
+        if data.get("likes") is not None:
+            if post.post_likes.filter(user=user).count() > 0:
+                post.likes.remove(user=user)
+            else:
+                post.likes.add(user=user)
+        post.save()
+        return HttpResponse(status=204)
 
     return HttpResponseRedirect(reverse("index"))

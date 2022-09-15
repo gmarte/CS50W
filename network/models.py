@@ -33,6 +33,10 @@ class Post(models.Model):
         return self.description + ' >> ' + str(self.creator) + ' >> ' + self.timestamp.strftime("%b %d %Y, %I:%M %p")
 
     @property
+    def likes_count(self):
+        return self.likes.all().count()
+
+    @property
     def time_passed(self):
         # Timezone info of your timezone aware variable
         timezone = self.timestamp.tzinfo
