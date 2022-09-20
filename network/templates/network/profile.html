@@ -33,7 +33,7 @@
                         {% if follower == False %}
                         <button type="submit"  id="follow"  class="btn btn-sm btn-success">Follow</button>
                         {% else %}
-                        <button type="submit" id="unfollow" class="btn btn-sm btn-warning">Unfollow</button>
+                        <button type="submit" id="unfollow" class="btn btn-sm btn-danger">Unfollow</button>
                         {% endif %}
                       </form>
                       {% endif %}
@@ -50,7 +50,7 @@
                     {% for post in posts %}
                     <li class="list-group-item">                      
                       {% if post.creator == user %}
-                      <a data-id="{{post.id}}" class="badge badge-primary">Edit</a>
+                      <a data-id="{{post.id}}" class="badge badge-primary">EDIT</a>
                       {% endif %}
                       <p id="description_{{post.id}}" data-id="{{post.id}}" class="nm">{{post.description}}</p>
                       {% if user.is_authenticated %}

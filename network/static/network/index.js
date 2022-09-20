@@ -7,21 +7,72 @@ const unlike = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" f
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("ini DOM");
-  var spans = document.querySelectorAll('span');    
+  var spans = document.querySelectorAll("span, [id^='post_like_']");
+  var edits = document.querySelectorAll("a, [id^='post_edit_']")
   
   for (var i = 0; i < spans.length; i++) {
       var self = spans[i];
-      if (self.dataset.id){
+    //   if (self.dataset.id){
         self.addEventListener('click', function (event) {  
           // prevent browser's default action
           event.preventDefault();
-          console.log("muah calling" + this.dataset.id);
+          console.log("calling like" + this.dataset.id);
           // calling the like action
-          likeAction(this.dataset.id); // 'this' refers to the current span on for loop
+          likeAction(this.dataset.id)
         }, false);
-      }      
+    //   }      
   }
+
+  for (var i = 0; i < edits.length; i++) {
+    var self = edits[i];  
+      self.addEventListener('click', function (event) {  
+        // prevent browser's default action
+        event.preventDefault();
+        console.log("calling edits" + this.dataset.id);        
+        // calling the edit innerHTML
+        let description = document.querySelector('#description_'+this.dataset.id); 
+        let descriptText = description.innerHTML;
+        console.log(this.innerHTML);
+        if (this.innerHTML == 'EDIT'){
+        description.innerHTML = `<textarea class="form-control mt-2" rows="4" cols="50" id="textarea_description_`+this.dataset.id+`" name="description" type="text" placeholder="Post your deepest thoughts">`+ descriptText +`</textarea>`;
+        // <button class="btn btn-sm btn-success col-12 p-2 mt-1" type="submit">Edit</button>`;        
+        let buttonEdit = document.createElement('button');
+        buttonEdit.className = 'btn btn-sm btn-success col-12 p-2 mt-1';
+        buttonEdit.addEventListener('click', () => updatePost(this.dataset.id));
+        buttonEdit.innerHTML = 'Edit';
+        description.appendChild(buttonEdit);
+        }        
+        else{            
+            description.innerHTML = document.querySelector('#textarea_description_'+this.dataset.id).innerHTML;
+        }
+        this.innerHTML = this.innerHTML == 'EDIT'?'CANCEL':'EDIT';
+      }, false);
+  //   }      
+}
 });
+
+function updatePost(id){
+    console.log("update post "+id);
+    let description = document.querySelector('#textarea_description_'+id).innerHTML;
+    console.log('updating text' + description);
+
+    // fetch('/posts/' + id, {
+    //     method: 'PUT',
+    //     body: JSON.stringify({ like : 'true' })
+    //   }).then(response => { 
+    //     if (!response.ok) {throw response } //throw exception
+    //     else{return response.json()}
+    //   }).then(result => {
+    //     console.log(result); // console log the result
+    //     if (result.like_post){
+    //       document.querySelector("#post_like_"+id).innerHTML = like;        
+    //     }
+    //     else{
+    //       document.querySelector("#post_like_"+id).innerHTML = unlike;
+    //     }
+    //     document.querySelector("#like_count_"+id).innerHTML = result.likes_count;
+    //   });    
+}
 
 function likeAction(id){
   console.log("sending ajax");
