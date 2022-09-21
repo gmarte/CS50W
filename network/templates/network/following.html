@@ -3,10 +3,13 @@
 
 {% block body %}
     <div class="container">
-        <!-- <div id="post" class="row">
+        <!-- <div id="post" class="row">                    
             <form class="form-group col-xs-12 col-md-6 col-lg-8" method="post" action="{% url 'posts' %}">
             {% csrf_token %}
             <div>
+                {% if message %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endif %} 
                 <h4>What's on your mind</h4>
                 <input class="form-control" id="description" name="description"  type="text" placeholder="Post your deepest thoughts">
                 <button class="btn btn-sm btn-success col-12 p-2 mt-1" type="submit">Post</button>
@@ -16,39 +19,22 @@
         <div class="row">
             <div class="col-xs-12 col-md-6 col-lg-8 bootstrap snippets bootdeys">
                 <div class="widget panel">
-                  <div class="panel-body">                    
-                    <ul class="list-table">
-                      <li class="p-1" style="width:70px;">
-                        <img class="img-circle img-bordered-primary" src="https://i0.wp.com/lacriaturacreativa.com/wp-content/uploads/2019/03/GOT-emojis-01.jpg" alt="" width="65px" height="65px">
-                      </li>
-                      <li class="text-left">
-                        <h5 class="semibold ellipsis nm">{{profile}}</h5>
-                        <p class="text-muted nm">{{profile.count_followers}} followers</p>
-                        <p class="text-muted nm">{{profile.count_following}} following</p>
-                      </li>
-                      <li class="text-right">
-                        {% if user.is_authenticated and user.id != profile.id %}
-                        <form action="{% url 'profile' profile.id %}" method="post">
-                        {% csrf_token %}
-                        {% if follower == False %}
-                        <button type="submit"  id="follow"  class="btn btn-sm btn-success">Follow</button>
-                        {% else %}
-                        <button type="submit" id="unfollow" class="btn btn-sm btn-danger">Unfollow</button>
-                        {% endif %}
-                      </form>
-                      {% endif %}
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="mt-2">
-                    <h4 class="mb0">Latest Posts
+                  <div class="panel-body">
+                    <h4 id="section_title" class="mb0">Latest following Posts
                       <i class="fa fa-twitter text-info pull-right"></i>
                     </h4>
                     <hr>
-                  </div>   
+                   </div>
+                </div>
+            </div>
+        </div>        
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-lg-8 bootstrap snippets bootdeys">
+                <div class="widget panel">                
                   <ul id="post_rows" class="list-group">
                     {% for post in posts %}
-                    <li class="list-group-item">                      
+                    <li class="list-group-item">
+                      <a href="{% url 'profile' post.creator.id %}"><h2>{{post.creator}}</h2></a>
                       {% if post.creator == user %}
                       <a href="javascript:void(0)" data-id="{{post.id}}" id="pos_edit_{{post.id}}" class="text-decoration-none badge badge-primary text-light">EDIT</a>
                       {% endif %}
@@ -69,11 +55,11 @@
                         <span id="like_count_{{post.id}}">{{post.likes_count}}</span>
                       <small class="text-muted float-right">{{post.time_passed}}</small>                      
                     </li>
-                    {% endfor %}                            
-                  </ul>                                           
+                    {% endfor %}                      
+                  </ul>
                 </div>
             </div>
         </div> 
-        {% include "network/paginator.html" %}                                                       
+        {% include "network/paginator.html" %}                                                           
     </div>
 {% endblock %}

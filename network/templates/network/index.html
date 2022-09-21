@@ -36,7 +36,7 @@
                     <li class="list-group-item">
                       <a href="{% url 'profile' post.creator.id %}"><h2>{{post.creator}}</h2></a>
                       {% if post.creator == user %}
-                      <a data-id="{{post.id}}" id="pos_edit_{{post.id}}" class="text-decoration-none badge badge-primary text-light">EDIT</a>
+                      <a href="javascript:void(0)" data-id="{{post.id}}" id="pos_edit_{{post.id}}" class="text-decoration-none badge badge-primary text-light">EDIT</a>
                       {% endif %}
                       <p id="description_{{post.id}}" data-id="{{post.id}}" class="nm">{{post.description}}</p>
                       {% if user.is_authenticated %}
@@ -59,6 +59,7 @@
                   </ul>
                 </div>
             </div>
-        </div>                        
+        </div>  
+        {% include "network/paginator.html" %}                                      
     </div>
 {% endblock %}

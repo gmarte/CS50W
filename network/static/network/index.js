@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // <button class="btn btn-sm btn-success col-12 p-2 mt-1" type="submit">Edit</button>`;        
         let buttonEdit = document.createElement('button');
         buttonEdit.className = 'btn btn-sm btn-success col-12 p-2 mt-1';
-        buttonEdit.addEventListener('click', () => updatePost(this.dataset.id));
+        buttonEdit.addEventListener('click', () => updatePost(this));
         buttonEdit.innerHTML = 'Edit';
         description.appendChild(buttonEdit);
         }        
@@ -52,27 +52,27 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 });
 
-function updatePost(id){
-    console.log("update post "+id);
-    let description = document.querySelector('#textarea_description_'+id).innerHTML;
+function updatePost(o){
+    id = o.dataset.id;
+    console.log("update post "+o.datasetid);
+    const description = document.querySelector('#textarea_description_'+id).value;
     console.log('updating text' + description);
 
-    // fetch('/posts/' + id, {
-    //     method: 'PUT',
-    //     body: JSON.stringify({ like : 'true' })
-    //   }).then(response => { 
-    //     if (!response.ok) {throw response } //throw exception
-    //     else{return response.json()}
-    //   }).then(result => {
-    //     console.log(result); // console log the result
-    //     if (result.like_post){
-    //       document.querySelector("#post_like_"+id).innerHTML = like;        
-    //     }
-    //     else{
-    //       document.querySelector("#post_like_"+id).innerHTML = unlike;
-    //     }
-    //     document.querySelector("#like_count_"+id).innerHTML = result.likes_count;
-    //   });    
+    fetch('/editpost/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({ description : description })
+      }).then(response => { 
+        if (!response.ok) {throw response } //throw exception
+        else{return response.json()}
+      }).then(result => {
+        console.log(result); // console log the result
+        if (result.success){
+            let descriptionElement = document.querySelector('#description_'+id); 
+            descriptionElement.innerHTML = '';
+            descriptionElement.innerHTML = description;
+            o.innerHTML = 'EDIT';
+        }        
+      });    
 }
 
 function likeAction(id){
