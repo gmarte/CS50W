@@ -21,10 +21,10 @@
                       <li class="p-1" style="width:70px;">
                         <img class="img-circle img-bordered-primary" src="https://i0.wp.com/lacriaturacreativa.com/wp-content/uploads/2019/03/GOT-emojis-01.jpg" alt="" width="65px" height="65px">
                       </li>
-                      <li class="text-left">
+                      <li class="pl-2 text-left">
                         <h5 class="semibold ellipsis nm">{{profile}}</h5>
-                        <p class="text-muted nm">{{profile.count_followers}} followers</p>
-                        <p class="text-muted nm">{{profile.count_following}} following</p>
+                        <p class="text-muted semibold nm">{{profile.count_followers}} followers</p>
+                        <p class="text-muted semibold nm">{{profile.count_following}} following</p>
                       </li>
                       <li class="text-right">
                         {% if user.is_authenticated and user.id != profile.id %}
@@ -66,7 +66,7 @@
                         {% endif %}
                         </span>
                        {% endif %}
-                        <span id="like_count_{{post.id}}">{{post.likes_count}}</span>
+                        <span id="like_count_{{post.id}}">{{post.likes_count}} like(s)</span>
                       <small class="text-muted float-right">{{post.time_passed}}</small>                      
                     </li>
                     {% endfor %}                            

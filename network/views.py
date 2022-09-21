@@ -145,6 +145,9 @@ def editpost(request, post_id):
         if data.get("description") is not None and post.creator == user:
             post.description = data.get("description")
             post.save()
+        else:
+            return JsonResponse({"error": "User doesn't have permission."}, status=404)
+
         return JsonResponse({"success": True}, status=200)
         # return HttpResponse(status=204)
 

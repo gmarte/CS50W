@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let descriptText = description.innerHTML;
         console.log(this.innerHTML);
         if (this.innerHTML == 'EDIT'){
-        description.innerHTML = `<textarea class="form-control mt-2" rows="4" cols="50" id="textarea_description_`+this.dataset.id+`" name="description" type="text" placeholder="Post your deepest thoughts">`+ descriptText +`</textarea>`;
-        // <button class="btn btn-sm btn-success col-12 p-2 mt-1" type="submit">Edit</button>`;        
+        description.innerHTML = `<textarea class="form-control mt-2" rows="4" cols="50" id="textarea_description_`+this.dataset.id+`" name="description" type="text" placeholder="Post your deepest thoughts">`+ descriptText +`</textarea>`;        
         let buttonEdit = document.createElement('button');
         buttonEdit.className = 'btn btn-sm btn-success col-12 p-2 mt-1';
         buttonEdit.addEventListener('click', () => updatePost(this));
@@ -56,14 +55,22 @@ function updatePost(o){
     id = o.dataset.id;
     console.log("update post "+o.datasetid);
     const description = document.querySelector('#textarea_description_'+id).value;
+    const oldDescription = document.querySelector('#description_'+id);
     console.log('updating text' + description);
 
     fetch('/editpost/' + id, {
         method: 'PUT',
         body: JSON.stringify({ description : description })
       }).then(response => { 
-        if (!response.ok) {throw response } //throw exception
-        else{return response.json()}
+        if (!response.ok) {            
+            o.innerHTML = '';
+            oldDescription.innerHTML = description;
+            window.location.reload();
+            throw response;
+        } 
+        else{
+            return response.json()
+        }
       }).then(result => {
         console.log(result); // console log the result
         if (result.success){
@@ -72,7 +79,7 @@ function updatePost(o){
             descriptionElement.innerHTML = description;
             o.innerHTML = 'EDIT';
         }        
-      });    
+      })
 }
 
 function likeAction(id){
@@ -91,7 +98,7 @@ function likeAction(id){
       else{
         document.querySelector("#post_like_"+id).innerHTML = unlike;
       }
-      document.querySelector("#like_count_"+id).innerHTML = result.likes_count;
+      document.querySelector("#like_count_"+id).innerHTML = result.likes_count + ' like(s)' ;
     });    
   // window.location.reload();    
 }
