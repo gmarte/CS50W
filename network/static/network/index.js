@@ -8,11 +8,11 @@ const unlike = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" f
 document.addEventListener('DOMContentLoaded', function() {
   console.log("ini DOM");
   var spans = document.querySelectorAll("span, [id^='post_like_']");
-  var edits = document.querySelectorAll("a, [id^='post_edit_']")
+  var edits = document.querySelectorAll("a, [id^='post_edit_']"); 
   
   for (var i = 0; i < spans.length; i++) {
       var self = spans[i];
-    //   if (self.dataset.id){
+      if (self.dataset.id){
         self.addEventListener('click', function (event) {  
           // prevent browser's default action
           event.preventDefault();
@@ -20,11 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
           // calling the like action
           likeAction(this.dataset.id)
         }, false);
-    //   }      
+      }      
   }
 
   for (var i = 0; i < edits.length; i++) {
     var self = edits[i];  
+    if(self.dataset.id) {
       self.addEventListener('click', function (event) {  
         // prevent browser's default action
         event.preventDefault();
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         this.innerHTML = this.innerHTML == 'EDIT'?'CANCEL':'EDIT';
       }, false);
-  //   }      
+    }      
 }
 });
 
